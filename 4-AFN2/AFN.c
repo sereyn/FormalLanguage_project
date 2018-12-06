@@ -72,26 +72,46 @@ int AFN_analyse_mot(char *mot, afn a){
 }
 
 int NTwoToNOne(int a, int b){
-  return a+NB_ETATS_MAX*b;
-}
-
-int NOneToNTwo(int a, int *r){
-  r[0] = a%NB_ETATS_MAX;
-  r[1] = a/NB_ETATS_MAX;
-  return 0;
+  // Bijection de NxN dans N
+  return 0.5*(a+b)*(a+b+1)+b;
 }
 
 int AFN_construire_produit_intersection(afn a, afn b, afn r){
-  for(int i=0; i<NB_ETATS_MAX; i++){
-    for(int j=0; j<NB_ETATS_MAX; j++){
-      for(int lettre=0; lettre<TAILLE_ALPHABET; lettre++){
-        if(ENS_appartient(i, a->trans[j][lettre+'a'])){
-          
-        }
-        if(ENS_appartient(j, a->trans[i][lettre+'a'])){
-
+  AFN_initialiser_afn(r);
+  for(int j=0; j<TAILLE_ALPHABET; j++){
+    for(int i=0; i<NB_ETATS_MAX; i++){
+      for(int y=0; y<NB_ETATS_MAX; y++){
+        if(ENS_appartient(y, a->trans[i][j])){
+          // on a (i 'j' y) dans (i, x) (j, y)
+          for(int k=0; k<NB_ETATS_MAX; k++){
+            for(int m=0; m<NB_ETATS_MAX; m++){
+              if(ENS_appartient(m, b->trans[k][j])){
+                // on a (i, k) (y, m) 
+                if(NTwoToNOne(i, k) > NB_ETATS_MAX || NTwoToNOne(y, m) > NB_ETATS_MAX){
+                  printf("NB_ETATS_MAX depasse.\n");
+                  return -1;
+                }
+                AFN_ajouter_transition(NTwoToNOne(i, k), j+'a', NTwoToNOne(y, m), r);
+                // Faisons les etats initiaux
+                if(ENS_appartient(i, a->initial) && ENS_appartient(k, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(i, k), r);
+                }
+                if(ENS_appartient(y, a->initial) && ENS_appartient(m, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(y, m), r);
+                }
+                // Faisons les etats finaux
+                if(ENS_appartient(i, a->final) && ENS_appartient(k, b->final)){
+                  AFN_rendre_final(NTwoToNOne(i, k), r);
+                }
+                if(ENS_appartient(y, a->final) && ENS_appartient(m, b->final)){
+                  AFN_rendre_final(NTwoToNOne(y, m), r);
+                }
+              }
+            }
+          }
         }
       }
     }
   }
+  return 0;
 }

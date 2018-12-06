@@ -1,7 +1,8 @@
 #include "AFN.h"
 
 int main(int argc, char *argv[]){
-	afn mon_afn = AFN_initialiser_afn();
+	// tests d'analyse
+	/*afn mon_afn = AFN_initialiser_afn();
 
 	AFN_rendre_final(3, mon_afn);
 	AFN_rendre_initial(1, mon_afn);
@@ -12,13 +13,28 @@ int main(int argc, char *argv[]){
 
 	AFN_afficher_afn(mon_afn);
 
-	printf("\n%d\n", AFN_analyse_mot("aaaabbaabbb", mon_afn));
+	printf("\n%d\n", AFN_analyse_mot("aaaabbaabbb", mon_afn));*/
 
-	int result[2];
-	NOneToNTwo(1305, result);
+	afn afnA = AFN_initialiser_afn();
+	AFN_rendre_initial(1, afnA);
+	AFN_rendre_initial(2, afnA);
+	AFN_rendre_final(3, afnA);
+	AFN_ajouter_transition(1, 'a', 2, afnA);
+	AFN_ajouter_transition(2, 'a', 3, afnA);
+	AFN_ajouter_transition(2, 'b', 3, afnA);
+	AFN_ajouter_transition(3, 'b', 2, afnA);
 
-	printf("%d\n", NTwoToNOne(25, 32));
-	printf("%d %d\n", result[0], result[1]);
+	afn afnB = AFN_initialiser_afn();
+	AFN_rendre_initial(1, afnB);
+	AFN_rendre_final(3, afnB);
+	AFN_ajouter_transition(1, 'a', 2, afnB);
+	AFN_ajouter_transition(2, 'a', 1, afnB);
+	AFN_ajouter_transition(2, 'b', 3, afnB);
+	AFN_ajouter_transition(3, 'b', 3, afnB);
+	afn afnC = AFN_initialiser_afn();
+
+	AFN_construire_produit_intersection(afnA, afnB, afnC);
+	AFN_afficher_afn(afnC);
 
 	return 0;
 }
