@@ -33,4 +33,8 @@ int AFN_construire_produit_intersection(afn a, afn b, afn r);
 
 int AFN_construire_produit_union(afn a, afn b, afn r);
 
+int AFN_construire_produit_difference(afn a, afn b, afn r);
+
+int AFN_construire_produit_difference_symetrique(afn a, afn b, afn r);
+
 #endif //AFN

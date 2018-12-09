@@ -115,3 +115,125 @@ int AFN_construire_produit_intersection(afn a, afn b, afn r){
   }
   return 0;
 }
+
+int AFN_construire_produit_union(afn a, afn b, afn r){
+  AFN_initialiser_afn(r);
+  for(int j=0; j<TAILLE_ALPHABET; j++){
+    for(int i=0; i<NB_ETATS_MAX; i++){
+      for(int y=0; y<NB_ETATS_MAX; y++){
+        if(ENS_appartient(y, a->trans[i][j])){
+          // on a (i 'j' y) dans (i, x) (j, y)
+          for(int k=0; k<NB_ETATS_MAX; k++){
+            for(int m=0; m<NB_ETATS_MAX; m++){
+              if(ENS_appartient(m, b->trans[k][j])){
+                // on a (i, k) (y, m) 
+                if(NTwoToNOne(i, k) > NB_ETATS_MAX || NTwoToNOne(y, m) > NB_ETATS_MAX){
+                  printf("NB_ETATS_MAX depasse.\n");
+                  return -1;
+                }
+                AFN_ajouter_transition(NTwoToNOne(i, k), j+'a', NTwoToNOne(y, m), r);
+                // Faisons les etats initiaux
+                if(ENS_appartient(i, a->initial) && ENS_appartient(k, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(i, k), r);
+                }
+                if(ENS_appartient(y, a->initial) && ENS_appartient(m, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(y, m), r);
+                }
+                // Faisons les etats finaux
+                if(ENS_appartient(i, a->final) || ENS_appartient(k, b->final)){
+                  AFN_rendre_final(NTwoToNOne(i, k), r);
+                }
+                if(ENS_appartient(y, a->final) || ENS_appartient(m, b->final)){
+                  AFN_rendre_final(NTwoToNOne(y, m), r);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+int AFN_construire_produit_difference(afn a, afn b, afn r){
+  AFN_initialiser_afn(r);
+  for(int j=0; j<TAILLE_ALPHABET; j++){
+    for(int i=0; i<NB_ETATS_MAX; i++){
+      for(int y=0; y<NB_ETATS_MAX; y++){
+        if(ENS_appartient(y, a->trans[i][j])){
+          // on a (i 'j' y) dans (i, x) (j, y)
+          for(int k=0; k<NB_ETATS_MAX; k++){
+            for(int m=0; m<NB_ETATS_MAX; m++){
+              if(ENS_appartient(m, b->trans[k][j])){
+                // on a (i, k) (y, m) 
+                if(NTwoToNOne(i, k) > NB_ETATS_MAX || NTwoToNOne(y, m) > NB_ETATS_MAX){
+                  printf("NB_ETATS_MAX depasse.\n");
+                  return -1;
+                }
+                AFN_ajouter_transition(NTwoToNOne(i, k), j+'a', NTwoToNOne(y, m), r);
+                // Faisons les etats initiaux
+                if(ENS_appartient(i, a->initial) && ENS_appartient(k, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(i, k), r);
+                }
+                if(ENS_appartient(y, a->initial) && ENS_appartient(m, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(y, m), r);
+                }
+                // Faisons les etats finaux
+                if(ENS_appartient(i, a->final) && !ENS_appartient(k, b->final)){
+                  AFN_rendre_final(NTwoToNOne(i, k), r);
+                }
+                if(ENS_appartient(y, a->final) && !ENS_appartient(m, b->final)){
+                  AFN_rendre_final(NTwoToNOne(y, m), r);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+int AFN_construire_produit_difference_symetrique(afn a, afn b, afn r){
+  AFN_initialiser_afn(r);
+  for(int j=0; j<TAILLE_ALPHABET; j++){
+    for(int i=0; i<NB_ETATS_MAX; i++){
+      for(int y=0; y<NB_ETATS_MAX; y++){
+        if(ENS_appartient(y, a->trans[i][j])){
+          // on a (i 'j' y) dans (i, x) (j, y)
+          for(int k=0; k<NB_ETATS_MAX; k++){
+            for(int m=0; m<NB_ETATS_MAX; m++){
+              if(ENS_appartient(m, b->trans[k][j])){
+                // on a (i, k) (y, m) 
+                if(NTwoToNOne(i, k) > NB_ETATS_MAX || NTwoToNOne(y, m) > NB_ETATS_MAX){
+                  printf("NB_ETATS_MAX depasse.\n");
+                  return -1;
+                }
+                AFN_ajouter_transition(NTwoToNOne(i, k), j+'a', NTwoToNOne(y, m), r);
+                // Faisons les etats initiaux
+                if(ENS_appartient(i, a->initial) && ENS_appartient(k, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(i, k), r);
+                }
+                if(ENS_appartient(y, a->initial) && ENS_appartient(m, b->initial)){
+                  AFN_rendre_initial(NTwoToNOne(y, m), r);
+                }
+                // Faisons les etats finaux
+                if((ENS_appartient(i, a->final) && !ENS_appartient(k, b->final)) ||
+                  (!ENS_appartient(i, a->final) && ENS_appartient(k, b->final))){
+                  AFN_rendre_final(NTwoToNOne(i, k), r);
+                }
+                if((ENS_appartient(y, a->final) && !ENS_appartient(m, b->final)) ||
+                  (!ENS_appartient(y, a->final) && ENS_appartient(m, b->final))){
+                  AFN_rendre_final(NTwoToNOne(y, m), r);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
